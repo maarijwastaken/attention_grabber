@@ -1,0 +1,125 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@brainsatplay/blueberry"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datastreams-api@latest"></script>
+</head>
+<body>
+  <div>
+      <link href="./home.css" rel="stylesheet" />
+      <div class="home-container">
+        <div class="home-feature-card">
+          <img
+            src="https://images.squarespace-cdn.com/content/v1/6235b926bfc7ca2eca5eafb1/6252c97a-c793-43eb-80bb-b99fc681de25/2.png"
+            alt="image"
+            class="home-image"
+          />
+          <span>Attentiveness Score</span>
+          <span id="score" class="home-text1">Press Start</span>
+          <!-- <br>
+          <div class="vl-top"></div>
+          <span class="dot"></span>
+          <div class="vl-bottom"></div> -->
+          <br>
+          <div id="buttons">
+            <button id="blueberry">Start</button>
+          </div>
+        </div>
+      </div>
+  </div>
+</body>
+
+<script type="module">
+
+  // ------------- Import Libraries -------------
+
+  // User Interface
+  import * as components from "https://cdn.jsdelivr.net/npm/brainsatplay-ui@0.0.7/dist/index.esm.js"
+
+
+  // Data Acquisition
+  // import * as datastreams from "./src/frontend/dist/index.esm.js"
+  // import * as datastreams from "https://cdn.jsdelivr.net/npm/datastreams-api@latest/dist/index.esm.js"
+  const dataDevices = new datastreams.DataDevices()
+
+  // Device Drivers
+  // import device from "https://cdn.jsdelivr.net/npm/@brainsatplay/blueberry@0.0.0/dist/index.esm.js"
+  // import device from "./dist/index.esm.js"
+
+  dataDevices.load(device)
+
+  // ------------- Declare Global Variables -------------
+  const allData = []
+  let channels = 0
+  let trackMap = new Map()
+  let contentHintToIndex = {}
+
+  // ------------- Declare Data Handler -------------
+  const ondata = (data, timestamps, contentHint) => {
+      if (contentHintToIndex[contentHint] === 1) {
+          // console.log([data[0], timestamps[0]])
+          if (data[0] > 8500) {
+            document.getElementById("score").innerHTML = "HIGH"
+          }
+          if (data[0] > 8200 && data[0] < 8500) {
+            document.getElementById("score").innerHTML = "NORMAL"
+          }
+          if (data[0] < 8200) {
+            document.getElementById("score").innerHTML = "LOW"
+          }
+          
+          var extensionId = "olicjighkmiphihecbgnbeehjbicalbd";
+          chrome.runtime.sendMessage(extensionId, {data: data[0]}, function(response) {
+            console.log(response.data)
+          }
+          );  
+      }
+      // console.log(`Data from Electrode ${contentHintToIndex[contentHint]} (${contentHint})`, data, timestamps)
+  }
+
+  // ------------- Declare Track Handler -------------
+  const handleTrack = (track) => { 
+      console.log(track)
+      // ------------- Map Track Information (e.g. 10-20 Coordinate) to Index -------------
+      if (!trackMap.has(track.contentHint)) {
+            const index = trackMap.size
+            contentHintToIndex[track.contentHint] = index
+            trackMap.set(index, track)
+        }
+        
+        // ------------- Grab Index -------------
+        const i = contentHintToIndex[track.contentHint]
+        channels = (i > channels) ? i : channels // Assign channels as max track number
+
+        // ------------- Subscribe to New Data -------------
+        track.subscribe((data, timestamps) => {
+
+            // Organize New Data
+            let arr = []
+            for (let j = 0 ; j <= channels; j++) (i === j) ? arr.push(data) : arr.push([])
+
+            // Run ondata Callback
+            ondata(data, timestamps, track.contentHint)
+        })
+  }
+
+  // ------------- Declare Acquisition Function -------------
+
+  const startAcquisition = async (label) => {
+
+      // ------------- Get Device Stream -------------
+
+      console.log(label)
+      const dataDevice = await dataDevices.getUserDevice({label, bluetooth: true})
+
+      // ------------- Grab DataStream from Device -------------
+      const stream = dataDevice.stream
+
+      // ------------- Handle All Tracks -------------
+      stream.tracks.forEach(handleTrack)
+      stream.onaddtrack = e => handleTrack(e.track)
+  }
+
+  // ------------- Set Button Functionality -------------
+  const buttons = document.querySelector('#buttons')
+  for (let button of buttons.querySelectorAll('button')) button.onclick = () => startAcquisition(button.id)
+
+</script>
