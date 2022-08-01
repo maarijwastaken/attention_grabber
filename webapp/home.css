@@ -1,0 +1,55 @@
+.home-container {
+    width: 100%;
+    display: flex;
+    overflow: auto;
+    min-height: 100vh;
+    align-items: center;
+    flex-direction: column;
+    background-size: cover;
+    justify-content: center;
+    background-image: url('https://www.popsci.com/uploads/2022/07/12/carina-nebula-james-webb-space-telescope-camera.jpg?auto=webp');
+  }
+  .home-feature-card {
+    width: 242px;
+    height: 410px;
+    display: flex;
+    padding: var(--dl-space-space-twounits);
+    align-self: center;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: #D9D9D9;
+  }
+  .home-image {
+    width: 100px;
+    object-fit: cover;
+  }
+  .home-text1 {
+    font-size: 40px;
+    font-style: normal;
+    font-family: Fira Sans;
+    font-weight: 500;
+  }
+  @media(max-width: 479px) {
+    .home-text1 {
+      font-size: 55px;
+      font-style: normal;
+      text-align: center;
+      font-weight: 600;
+    }
+  }
+  .dot {
+    height: 25px;
+    width: 25px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+  }  
+  .vl-top {
+    border-left: 5px solid black;
+    height: 120px;
+  }
+  .vl-bottom {
+    border-left: 5px solid black;
+    height: 20px;
+  }
