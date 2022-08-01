@@ -1,0 +1,35 @@
+{
+  "name": "Attentiveness Checker",
+  "description": "Uses a Blueberry FNIRS detecting device to check if the user is paying attention.",
+  "version": "1.0",
+  "manifest_version": 3,
+  "externally_connectable": {
+    "ids": ["olicjighkmiphihecbgnbeehjbicalbd"],
+    "matches": ["*://localhost/*"]
+  },
+  "permissions": [
+    "alarms",
+    "notifications",
+    "storage",
+    "*://localhost/*",
+    "contextMenus"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "all_frames": true,
+    "js": ["contentScript.js"]
+  }],
+  "action": {
+    "default_title": "Attentiveness Checker",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "brain16.png",
+    "32": "brain32.png",
+    "48": "brain48.png",
+    "128": "brain128.png"
+  }
+}
